@@ -5,7 +5,7 @@
 var http = require('http');
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
 // etc.) The JSON body of the request is provided in the event parameter.
-exports.handler = function (event, context) {
+exports.handler = function(event, context) {
     try {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
 
@@ -20,7 +20,9 @@ exports.handler = function (event, context) {
         */
 
         if (event.session.new) {
-            onSessionStarted({requestId: event.request.requestId}, event.session);
+            onSessionStarted({
+                requestId: event.request.requestId
+            }, event.session);
         }
 
         if (event.request.type === "LaunchRequest") {
@@ -123,44 +125,44 @@ function getNextBART(callback, context) {
     var repromptText = "";
     var shouldEndSession = true;
     var source;
-        
-    console.log('Starting call');    
+
+    console.log('Starting call');
 
     http.get('http://api.bart.gov/api/etd.aspx?cmd=etd&orig=rock&key=QQ4R-5M9E-9NWT-DWE9&dir=s', function(res) {
-    
-        
+
+
         var body = '';
         res.on('data', function(chunk) {
             body += chunk;
         });
         res.on('end', function() {
-         
+
             var result = body.match(/<minutes>\d+<\/minutes>/g);
             console.log(result);
-            for (i = 0; i < result.length; i++) { 
+            for (i = 0; i < result.length; i++) {
                 result[i] = result[i].replace('<minutes>', '').replace('</minutes>', '');
-                if(i == result.length - 1) {
+                if (i == result.length - 1) {
                     speechOutput += 'and ' + result[i] + " ";
-                } else if(i == result.length - 2) {
+                } else if (i == result.length - 2) {
                     speechOutput += result[i] + " ";
                 } else {
                     speechOutput += result[i] + ", ";
                 }
-                
+
             }
             speechOutput += "minutes."
             callback(sessionAttributes,
                 buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         });
-        
+
     }).on('error', function(e) {
         console.log("Got error: " + e.message);
         context.done(null, 'FAILURE');
     });
     console.log('Ending call');
-    
 
-    
+
+
 }
 
 function handleSessionEndRequest(callback) {
@@ -201,7 +203,7 @@ function getColorFromSession(intent, session, callback) {
     // If the user does not respond or says something that is not understood, the session
     // will end.
     callback(sessionAttributes,
-         buildSpeechletResponse(intent.name, speechOutput, repromptText, shouldEndSession));
+        buildSpeechletResponse(intent.name, speechOutput, repromptText, shouldEndSession));
 }
 
 // --------------- Helpers that build all of the responses -----------------------
